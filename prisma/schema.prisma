@@ -1,0 +1,183 @@
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+model Usuario {
+  id               String   @id @default(cuid())
+  nome             String
+  email            String   @unique
+  senhaHash        String
+  criadoEm         DateTime @default(now())
+
+  personagens      Personagem[]
+  rituaisCriados   Ritual[]
+  periciasCriadas  Pericia[]
+  itensCriados     Item[]
+  campanhasMestre  Campanha[]
+}
+
+model Personagem {
+  id            String   @id @default(cuid())
+  nome          String
+  classe        Classe
+  trilha        String?
+  nex           Int      @default(5)
+
+  agilidade     Int      @default(1)
+  forca         Int      @default(1)
+  intelecto     Int      @default(1)
+  presenca      Int      @default(1)
+  vigor         Int      @default(1)
+
+  pvAtual       Int      @default(0)
+  peAtual       Int      @default(0)
+  sanidadeAtual Int      @default(0)
+
+  criadoEm      DateTime @default(now())
+
+  usuario       Usuario  @relation(fields: [usuarioId], references: [id])
+  usuarioId     String
+
+  pericias      PersonagemPericia[]
+  itens         PersonagemItem[]
+  rituais       PersonagemRitual[]
+
+  campanha      Campanha? @relation(fields: [campanhaId], references: [id])
+  campanhaId    String?
+}
+
+enum Classe {
+  COMBATENTE
+  ESPECIALISTA
+  OCULTISTA
+}
+
+model Pericia {
+  id           String   @id @default(cuid())
+  nome         String
+  atributoBase String
+
+  origem       OrigemPericia @default(OFICIAL)
+  criadoPor    Usuario?      @relation(fields: [criadoPorId], references: [id])
+  criadoPorId  String?
+
+  campanha     Campanha?     @relation(fields: [campanhaId], references: [id])
+  campanhaId   String?
+
+  personagens  PersonagemPericia[]
+}
+
+enum OrigemPericia {
+  OFICIAL
+  CUSTOMIZADO
+}
+
+model PersonagemPericia {
+  id            String     @id @default(cuid())
+  treino        Treino     @default(LEIGO)
+
+  personagem    Personagem @relation(fields: [personagemId], references: [id])
+  personagemId  String
+
+  pericia       Pericia    @relation(fields: [periciaId], references: [id])
+  periciaId     String
+
+  @@unique([personagemId, periciaId])
+}
+
+enum Treino {
+  LEIGO
+  TREINADO
+  VETERANO
+  EXPERT
+}
+
+model Ritual {
+  id           String   @id @default(cuid())
+  nome         String
+  circulo      Int
+  elemento     String
+  custoPE      Int
+  descricao    String
+
+  origem       OrigemRitual @default(OFICIAL)
+  livro        String?
+  criadoPor    Usuario?     @relation(fields: [criadoPorId], references: [id])
+  criadoPorId  String?
+
+  campanha     Campanha?    @relation(fields: [campanhaId], references: [id])
+  campanhaId   String?
+
+  personagens  PersonagemRitual[]
+}
+
+enum OrigemRitual {
+  OFICIAL
+  CUSTOMIZADO
+}
+
+model PersonagemRitual {
+  id            String     @id @default(cuid())
+
+  personagem    Personagem @relation(fields: [personagemId], references: [id])
+  personagemId  String
+
+  ritual        Ritual     @relation(fields: [ritualId], references: [id])
+  ritualId      String
+
+  @@unique([personagemId, ritualId])
+}
+
+model Item {
+  id           String   @id @default(cuid())
+  nome         String
+  descricao    String?
+
+  origem       OrigemItem @default(OFICIAL)
+  livro        String?
+  criadoPor    Usuario?   @relation(fields: [criadoPorId], references: [id])
+  criadoPorId  String?
+
+  campanha     Campanha?  @relation(fields: [campanhaId], references: [id])
+  campanhaId   String?
+
+  personagens  PersonagemItem[]
+}
+
+enum OrigemItem {
+  OFICIAL
+  CUSTOMIZADO
+}
+
+model PersonagemItem {
+  id            String     @id @default(cuid())
+  quantidade    Int        @default(1)
+
+  personagem    Personagem @relation(fields: [personagemId], references: [id])
+  personagemId  String
+
+  item          Item       @relation(fields: [itemId], references: [id])
+  itemId        String
+
+  @@unique([personagemId, itemId])
+}
+
+model Campanha {
+  id          String   @id @default(cuid())
+  nome        String
+  descricao   String?
+  criadoEm    DateTime @default(now())
+
+  mestre      Usuario  @relation(fields: [mestreId], references: [id])
+  mestreId    String
+
+  personagens          Personagem[]
+  periciasCustomizadas Pericia[]
+  rituaisCustomizados  Ritual[]
+  itensCustomizados    Item[]
+}
