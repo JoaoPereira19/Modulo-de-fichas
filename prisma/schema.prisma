@@ -61,6 +61,9 @@ model Pericia {
   id           String   @id @default(cuid())
   nome         String
   atributoBase String
+  soTreinada   Boolean  @default(false)
+  carga        Boolean  @default(false)
+  kit          Boolean  @default(false)
 
   origem       OrigemPericia @default(OFICIAL)
   criadoPor    Usuario?      @relation(fields: [criadoPorId], references: [id])
