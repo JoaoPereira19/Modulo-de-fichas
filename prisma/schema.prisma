@@ -59,11 +59,12 @@ enum Classe {
 
 model Pericia {
   id           String   @id @default(cuid())
-  nome         String
+  nome         String   @unique
   atributoBase String
   soTreinada   Boolean  @default(false)
   carga        Boolean  @default(false)
   kit          Boolean  @default(false)
+
 
   origem       OrigemPericia @default(OFICIAL)
   criadoPor    Usuario?      @relation(fields: [criadoPorId], references: [id])
@@ -140,6 +141,15 @@ model Item {
   id           String   @id @default(cuid())
   nome         String
   descricao    String?
+
+  categoria    String?   // "0", "I", "II", "III", "IV" — limite de patente
+  espacos      Int       @default(1)
+
+  // Campos específicos de armas (null pra itens que não são armas)
+  dano         String?
+  critico      String?
+  alcance      String?
+  tipoDano     String?   // C, P, I, B, Fogo...
 
   origem       OrigemItem @default(OFICIAL)
   livro        String?
