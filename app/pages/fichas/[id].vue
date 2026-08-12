@@ -64,3 +64,6 @@ const nomesClasse: Record<string, string> = {
     </div>
   </div>
 </template>
+
+
+// francimario gostoso
