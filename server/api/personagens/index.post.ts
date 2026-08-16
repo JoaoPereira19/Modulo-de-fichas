@@ -13,8 +13,21 @@ export default defineEventHandler(async (event) => {
       intelecto: body.intelecto ?? 1,
       presenca: body.presenca ?? 1,
       vigor: body.vigor ?? 1,
-      usuarioId: body.usuarioId, // por enquanto vem do front, até termos login (Fase 3)
+      usuarioId: body.usuarioId,
     },
+  })
+
+  // Adiciona automaticamente todas as perícias oficiais, como LEIGO
+  const periciasOficiais = await prisma.pericia.findMany({
+    where: { origem: 'OFICIAL' },
+  })
+
+  await prisma.personagemPericia.createMany({
+    data: periciasOficiais.map((pericia) => ({
+      personagemId: personagem.id,
+      periciaId: pericia.id,
+      treino: 'LEIGO',
+    })),
   })
 
   return personagem

@@ -1,13 +1,22 @@
 <script setup lang="ts">
 const route = useRoute()
 
-const { data: personagem, pending, error } = await useFetch(`/api/personagens/${route.params.id}`)
+const { data: personagem, pending, error, refresh } = await useFetch(`/api/personagens/${route.params.id}`)
 
 const nomesClasse: Record<string, string> = {
   COMBATENTE: 'Combatente',
   ESPECIALISTA: 'Especialista',
   OCULTISTA: 'Ocultista',
 }
+
+async function atualizarTreino(personagemPericiaId: string, novoTreino: string) {
+  await $fetch(`/api/personagens/${route.params.id}/pericias/${personagemPericiaId}`, {
+    method: 'PUT',
+    body: { treino: novoTreino },
+  })
+  refresh()
+}
+
 </script>
 
 <template>
@@ -41,15 +50,16 @@ const nomesClasse: Record<string, string> = {
       <h2>Perícias</h2>
       <ul v-if="personagem.pericias?.length">
         <li v-for="pp in personagem.pericias" :key="pp.id">
-          {{ pp.pericia.nome }} ({{ pp.treino }})
+          {{ pp.pericia.nome }}
+          <select :value="pp.treino" @change="atualizarTreino(pp.id, ($event.target as HTMLSelectElement).value)">
+            <option value="LEIGO">Leigo</option>
+            <option value="TREINADO">Treinado</option>
+            <option value="VETERANO">Veterano</option>
+            <option value="EXPERT">Expert</option>
+          </select>
         </li>
       </ul>
       <p v-else>Nenhuma perícia adicionada ainda.</p>
-
-      <AdicionarPericia
-        :personagem-id="personagem.id"
-        @adicionada="personagem.pericias.push($event)"
-      />
 
       <h2>Rituais</h2>
       <ul v-if="personagem.rituais?.length">
@@ -61,7 +71,7 @@ const nomesClasse: Record<string, string> = {
 
       <AdicionarRitual
         :personagem-id="personagem.id"
-        @adicionado="personagem.rituais.push($event)"
+        @adicionado="refresh()"
       />
 
       <h2>Inventário</h2>
@@ -74,7 +84,7 @@ const nomesClasse: Record<string, string> = {
 
       <AdicionarItem
         :personagem-id="personagem.id"
-        @adicionado="personagem.itens.push($event)"
+        @adicionado="refresh()"
       />
     </div>
   </div>
