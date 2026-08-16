@@ -15,7 +15,7 @@ const nomesClasse: Record<string, string> = {
     <div v-if="pending">Carregando...</div>
     <div v-else-if="error">Ficha não encontrada.</div>
 
-    <div v-else>
+    <div v-else-if="personagem">
       <NuxtLink to="/fichas">← Voltar</NuxtLink>
 
       <h1>{{ personagem.nome }}</h1>
@@ -46,6 +46,11 @@ const nomesClasse: Record<string, string> = {
       </ul>
       <p v-else>Nenhuma perícia adicionada ainda.</p>
 
+      <AdicionarPericia
+        :personagem-id="personagem.id"
+        @adicionada="personagem.pericias.push($event)"
+      />
+
       <h2>Rituais</h2>
       <ul v-if="personagem.rituais?.length">
         <li v-for="pr in personagem.rituais" :key="pr.id">
@@ -64,6 +69,3 @@ const nomesClasse: Record<string, string> = {
     </div>
   </div>
 </template>
-
-
-// francimario gostoso
