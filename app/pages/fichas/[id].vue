@@ -26,7 +26,8 @@ async function atualizarTreino(personagemPericiaId: string, novoTreino: string) 
 
     <div v-else-if="personagem">
       <NuxtLink to="/fichas">← Voltar</NuxtLink>
-
+      <NuxtLink :to="`/fichas/${personagem.id}/editar`">Editar Ficha</NuxtLink>
+      
       <h1>{{ personagem.nome }}</h1>
       <p>{{ nomesClasse[personagem.classe] }} — {{ personagem.trilha || 'Sem trilha' }}</p>
       <p>NEX: {{ personagem.nex }}%</p>
