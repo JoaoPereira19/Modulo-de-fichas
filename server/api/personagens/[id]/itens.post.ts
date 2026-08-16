@@ -6,21 +6,21 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   try {
-    const personagemPericia = await prisma.personagemPericia.create({
+    const personagemItem = await prisma.personagemItem.create({
       data: {
         personagemId: personagemId!,
-        periciaId: body.periciaId,
-        treino: body.treino ?? 'LEIGO',
+        itemId: body.itemId,
+        quantidade: body.quantidade ?? 1,
       },
-      include: { pericia: true },
+      include: { item: true },
     })
 
-    return personagemPericia
+    return personagemItem
   } catch (e) {
     if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
       throw createError({
         statusCode: 409,
-        statusMessage: 'Essa perícia já foi adicionada a essa ficha.',
+        statusMessage: 'Esse item já está no inventário dessa ficha.',
       })
     }
     throw e

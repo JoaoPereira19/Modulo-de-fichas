@@ -6,21 +6,27 @@ const { data: periciasDisponiveis } = await useFetch('/api/pericias')
 
 const periciaSelecionada = ref('')
 const treino = ref('LEIGO')
+const erro = ref('')
 
 async function adicionar() {
   if (!periciaSelecionada.value) return
+  erro.value = ''
 
-  const nova = await $fetch(`/api/personagens/${props.personagemId}/pericias`, {
-    method: 'POST',
-    body: {
-      periciaId: periciaSelecionada.value,
-      treino: treino.value,
-    },
-  })
+  try {
+    const nova = await $fetch(`/api/personagens/${props.personagemId}/pericias`, {
+      method: 'POST',
+      body: {
+        periciaId: periciaSelecionada.value,
+        treino: treino.value,
+      },
+    })
 
-  emit('adicionada', nova)
-  periciaSelecionada.value = ''
-  treino.value = 'LEIGO'
+    emit('adicionada', nova)
+    periciaSelecionada.value = ''
+    treino.value = 'LEIGO'
+  } catch (e: any) {
+    erro.value = e.statusMessage || e.data?.statusMessage || 'Erro ao adicionar perícia.'
+  }
 }
 </script>
 
@@ -41,5 +47,7 @@ async function adicionar() {
     </select>
 
     <button @click="adicionar">Adicionar</button>
+
+    <p v-if="erro" style="color: red">{{ erro }}</p>
   </div>
 </template>

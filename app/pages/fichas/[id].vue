@@ -59,6 +59,11 @@ const nomesClasse: Record<string, string> = {
       </ul>
       <p v-else>Nenhum ritual conhecido ainda.</p>
 
+      <AdicionarRitual
+        :personagem-id="personagem.id"
+        @adicionado="personagem.rituais.push($event)"
+      />
+
       <h2>Inventário</h2>
       <ul v-if="personagem.itens?.length">
         <li v-for="pi in personagem.itens" :key="pi.id">
@@ -66,6 +71,11 @@ const nomesClasse: Record<string, string> = {
         </li>
       </ul>
       <p v-else>Inventário vazio.</p>
+
+      <AdicionarItem
+        :personagem-id="personagem.id"
+        @adicionado="personagem.itens.push($event)"
+      />
     </div>
   </div>
 </template>
