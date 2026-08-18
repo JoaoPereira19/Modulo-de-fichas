@@ -29,7 +29,7 @@ async function atualizarTreino(personagemPericiaId: string, novoTreino: string) 
       <NuxtLink :to="`/fichas/${personagem.id}/editar`">Editar Ficha</NuxtLink>
       
       <h1>{{ personagem.nome }}</h1>
-      <p>{{ nomesClasse[personagem.classe] }} — {{ personagem.trilha || 'Sem trilha' }}</p>
+      <p>{{ nomesClasse[personagem.classe] }} — {{ personagem.origem || 'Sem origem' }} — {{ personagem.trilha || 'Sem trilha' }}</p>
       <p>NEX: {{ personagem.nex }}%</p>
 
       <h2>Atributos</h2>

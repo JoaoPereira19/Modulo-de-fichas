@@ -5,6 +5,7 @@ const router = useRouter()
 const { data: personagem } = await useFetch(`/api/personagens/${route.params.id}`)
 
 const nome = ref(personagem.value?.nome ?? '')
+const origem = ref(personagem.value?.origem ?? '')
 const classe = ref(personagem.value?.classe ?? 'COMBATENTE')
 const trilha = ref(personagem.value?.trilha ?? '')
 
@@ -23,6 +24,7 @@ async function salvar() {
     method: 'PUT',
     body: {
       nome: nome.value,
+      origem: origem.value || null,
       classe: classe.value,
       trilha: trilha.value || null,
       agilidade: agilidade.value,
@@ -48,6 +50,11 @@ async function salvar() {
       <div>
         <label>Nome</label>
         <input v-model="nome" required />
+      </div>
+
+      <div>
+        <label>Origem</label>
+        <input v-model="origem" />
       </div>
 
       <div>

@@ -25,6 +25,7 @@ model Personagem {
   id            String   @id @default(cuid())
   nome          String
   classe        Classe
+  origem        String?
   trilha        String?
   nex           Int      @default(5)
 

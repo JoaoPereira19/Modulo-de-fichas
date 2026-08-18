@@ -3,6 +3,7 @@ const personagensStore = usePersonagensStore()
 const router = useRouter()
 
 const nome = ref('')
+const origem = ref('')
 const classe = ref('COMBATENTE')
 const trilha = ref('')
 
@@ -16,6 +17,7 @@ async function salvar() {
   const novo = await personagensStore.criarPersonagem({
     nome: nome.value,
     classe: classe.value,
+    origem: origem.value || null,
     trilha: trilha.value || null,
     agilidade: agilidade.value,
     forca: forca.value,
@@ -37,7 +39,12 @@ async function salvar() {
         <label>Nome</label>
         <input v-model="nome" required />
       </div>
-
+      
+      <div>
+        <label>Origem</label>
+        <input v-model="origem" />
+      </div>
+      
       <div>
         <label>Classe</label>
         <select v-model="classe">
@@ -46,6 +53,7 @@ async function salvar() {
           <option value="OCULTISTA">Ocultista</option>
         </select>
       </div>
+
 
       <div>
         <label>Trilha</label>

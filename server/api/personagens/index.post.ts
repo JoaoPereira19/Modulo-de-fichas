@@ -7,6 +7,7 @@ export default defineEventHandler(async (event) => {
     data: {
       nome: body.nome,
       classe: body.classe,
+      origem: body.origem ?? null,
       trilha: body.trilha ?? null,
       agilidade: body.agilidade ?? 1,
       forca: body.forca ?? 1,
