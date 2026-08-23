@@ -43,9 +43,9 @@ async function atualizarTreino(personagemPericiaId: string, novoTreino: string) 
 
       <h2>Recursos</h2>
       <ul>
-        <li>PV: {{ personagem.pvAtual }}</li>
-        <li>PE: {{ personagem.peAtual }}</li>
-        <li>Sanidade: {{ personagem.sanidadeAtual }}</li>
+        <li>PV: {{ personagem.pvAtual }} / {{ personagem.pvMaximo }}</li>
+        <li>PE: {{ personagem.peAtual }} / {{ personagem.peMaximo }}</li>
+        <li>Sanidade: {{ personagem.sanidadeAtual }} / {{ personagem.sanidadeMaxima }}</li>
       </ul>
 
       <h2>Perícias</h2>
