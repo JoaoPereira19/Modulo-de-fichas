@@ -5,7 +5,7 @@ const router = useRouter()
 const { data: personagem } = await useFetch(`/api/personagens/${route.params.id}`)
 
 const nome = ref(personagem.value?.nome ?? '')
-const origem = ref(personagem.value?.origem ?? '')
+const origem = ref(personagem.value?.origemId ?? '')
 const classe = ref(personagem.value?.classe ?? 'COMBATENTE')
 const trilha = ref(personagem.value?.trilha ?? '')
 

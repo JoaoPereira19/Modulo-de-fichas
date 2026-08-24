@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     where: { id },
     data: {
       nome: body.nome,
-      origem: body.origem,
+      origemId: body.origemId,
       classe: body.classe,
       trilha: body.trilha,
       agilidade: body.agilidade,

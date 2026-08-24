@@ -299,6 +299,46 @@ async function seedItens() {
   console.log(`${itens.length} itens cadastrados.`)
 }
 
+const origens = [
+  { nome: 'Acadêmico', poderNome: 'Saber é Poder', poderDescricao: 'Bônus relacionado a testes de Conhecimento.' },
+  { nome: 'Agente de Saúde', poderNome: 'Técnica Medicinal', poderDescricao: 'Bônus em curas e primeiros socorros.' },
+  { nome: 'Amnésico', poderNome: 'Vislumbres do Passado', poderDescricao: 'Recorda fragmentos úteis do passado esquecido.' },
+  { nome: 'Artista', poderNome: 'Magnum Opus', poderDescricao: 'Cria uma obra com efeito paranormal sutil.' },
+  { nome: 'Atleta', poderNome: '110%', poderDescricao: 'Empenho físico excepcional em momentos críticos.' },
+  { nome: 'Chef', poderNome: 'Ingrediente Secreto', poderDescricao: 'Prepara alimentos com efeito benéfico especial.' },
+  { nome: 'Criminoso', poderNome: 'O Crime Compensa', poderDescricao: 'Vantagem em atividades ilícitas.' },
+  { nome: 'Cultista Arrependido', poderNome: 'Traços do Outro Lado', poderDescricao: 'Resquícios de um antigo contato paranormal.' },
+  { nome: 'Desgarrado', poderNome: 'Calejado', poderDescricao: 'Resistência forjada por uma vida difícil.' },
+  { nome: 'Engenheiro', poderNome: 'Ferramentas Favoritas', poderDescricao: 'Domínio sobre um conjunto de ferramentas.' },
+  { nome: 'Executivo', poderNome: 'Processo Otimizado', poderDescricao: 'Eficiência em tarefas administrativas e sociais.' },
+  { nome: 'Investigador', poderNome: 'Faro para Pistas', poderDescricao: 'Facilidade em encontrar pistas relevantes.' },
+  { nome: 'Lutador', poderNome: 'Mão Pesada', poderDescricao: 'Golpes desarmados mais poderosos.' },
+  { nome: 'Magnata', poderNome: 'Patrocinador da Ordem', poderDescricao: 'Acesso a recursos financeiros extras.' },
+  { nome: 'Mercenário', poderNome: 'Posição de Combate', poderDescricao: 'Vantagem tática no início de combates.' },
+  { nome: 'Militar', poderNome: 'Para Bellum', poderDescricao: 'Treinamento tático avançado.' },
+  { nome: 'Operário', poderNome: 'Ferramentas de Trabalho', poderDescricao: 'Familiaridade com equipamentos de trabalho pesado.' },
+  { nome: 'Policial', poderNome: 'Patrulha', poderDescricao: 'Instinto apurado de patrulhamento.' },
+  { nome: 'Religioso', poderNome: 'Acalentar', poderDescricao: 'Conforto espiritual a si e a outros.' },
+  { nome: 'Servidor Público', poderNome: 'Espírito Cívico', poderDescricao: 'Facilidade em lidar com burocracia e comunidade.' },
+  { nome: 'Teórico da Conspiração', poderNome: 'Eu Já Sabia', poderDescricao: 'Conhecimento paranoico útil às vezes.' },
+  { nome: 'T.I.', poderNome: 'Motor de Busca', poderDescricao: 'Habilidade excepcional de pesquisa digital.' },
+  { nome: 'Trabalhador Rural', poderNome: 'Desbravador', poderDescricao: 'Familiaridade com ambientes selvagens.' },
+  { nome: 'Trambiqueiro', poderNome: 'Impostor', poderDescricao: 'Facilidade em se passar por outra pessoa.' },
+  { nome: 'Universitário', poderNome: 'Dedicação', poderDescricao: 'Persistência acadêmica recompensadora.' },
+  { nome: 'Vítima', poderNome: 'Cicatrizes Psicológicas', poderDescricao: 'Resiliência mental forjada por trauma.' },
+]
+
+async function seedOrigens() {
+  for (const origem of origens) {
+    await prisma.origem.upsert({
+      where: { nome: origem.nome },
+      update: {},
+      create: origem,
+    })
+  }
+  console.log(`${origens.length} origens cadastradas.`)
+}
+
 async function main() {
   for (const pericia of pericias) {
     await prisma.pericia.upsert({
@@ -308,6 +348,7 @@ async function main() {
     })
   }
 
+  await seedOrigens()
   await seedRituais()
   await seedItens()
   console.log(`${pericias.length} perícias cadastradas.`)

@@ -3,7 +3,8 @@ const personagensStore = usePersonagensStore()
 const router = useRouter()
 
 const nome = ref('')
-const origem = ref('')
+const origemId = ref('')
+const { data: origensDisponiveis } = await useFetch('/api/origens')
 const classe = ref('COMBATENTE')
 const trilha = ref('')
 
@@ -17,7 +18,7 @@ async function salvar() {
   const novo = await personagensStore.criarPersonagem({
     nome: nome.value,
     classe: classe.value,
-    origem: origem.value || null,
+    origemId: origemId.value || null,
     trilha: trilha.value || null,
     agilidade: agilidade.value,
     forca: forca.value,
@@ -42,7 +43,12 @@ async function salvar() {
       
       <div>
         <label>Origem</label>
-        <input v-model="origem" />
+        <select v-model="origemId">
+          <option value="">Nenhuma</option>
+          <option v-for="o in origensDisponiveis" :key="o.id" :value="o.id">
+            {{ o.nome }}
+          </option>
+        </select>
       </div>
       
       <div>

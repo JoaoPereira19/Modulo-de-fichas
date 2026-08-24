@@ -1,32 +1,41 @@
 import { prisma } from '../../utils/prisma'
+import { calcularRecursosMaximos } from '../../utils/calcularRecursos'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
+
+  const nex = body.nex ?? 5
+  const vigor = body.vigor ?? 1
+  const presenca = body.presenca ?? 1
+
+  const { pvMaximo, peMaximo, sanidadeMaxima } = calcularRecursosMaximos(
+    body.classe, nex, vigor, presenca
+  )
 
   const personagem = await prisma.personagem.create({
     data: {
       nome: body.nome,
       classe: body.classe,
-      origem: body.origem ?? null,
+      origemId: body.origemId ?? null,
       trilha: body.trilha ?? null,
+      nex,
       agilidade: body.agilidade ?? 1,
       forca: body.forca ?? 1,
       intelecto: body.intelecto ?? 1,
-      presenca: body.presenca ?? 1,
-      vigor: body.vigor ?? 1,
+      presenca,
+      vigor,
+      pvAtual: pvMaximo,
+      peAtual: peMaximo,
+      sanidadeAtual: sanidadeMaxima,
       usuarioId: body.usuarioId,
     },
   })
 
-  // Adiciona automaticamente todas as perícias oficiais, como LEIGO
-  const periciasOficiais = await prisma.pericia.findMany({
-    where: { origem: 'OFICIAL' },
-  })
-
+  const periciasOficiais = await prisma.pericia.findMany({ where: { origem: 'OFICIAL' } })
   await prisma.personagemPericia.createMany({
-    data: periciasOficiais.map((pericia) => ({
+    data: periciasOficiais.map((p) => ({
       personagemId: personagem.id,
-      periciaId: pericia.id,
+      periciaId: p.id,
       treino: 'LEIGO',
     })),
   })

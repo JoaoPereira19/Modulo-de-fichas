@@ -25,7 +25,6 @@ model Personagem {
   id            String   @id @default(cuid())
   nome          String
   classe        Classe
-  origem        String?
   trilha        String?
   nex           Int      @default(5)
 
@@ -47,9 +46,13 @@ model Personagem {
   pericias      PersonagemPericia[]
   itens         PersonagemItem[]
   rituais       PersonagemRitual[]
-
+  habilidades   Habilidade[]
+  
   campanha      Campanha? @relation(fields: [campanhaId], references: [id])
   campanhaId    String?
+
+  origem      Origem?  @relation(fields: [origemId], references: [id])
+  origemId    String?
 }
 
 enum Classe {
@@ -194,4 +197,30 @@ model Campanha {
   periciasCustomizadas Pericia[]
   rituaisCustomizados  Ritual[]
   itensCustomizados    Item[]
+}
+
+model Origem {
+  id          String   @id @default(cuid())
+  nome        String   @unique
+  poderNome   String
+  poderDescricao String
+
+  personagens Personagem[]
+}
+
+model Habilidade {
+  id           String   @id @default(cuid())
+  nome         String
+  descricao    String
+  tipo         TipoHabilidade
+
+  personagem   Personagem @relation(fields: [personagemId], references: [id])
+  personagemId String
+}
+
+enum TipoHabilidade {
+  ORIGEM
+  TRILHA
+  CLASSE
+  PODER_PARANORMAL
 }

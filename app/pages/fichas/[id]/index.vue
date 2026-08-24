@@ -17,6 +17,11 @@ async function atualizarTreino(personagemPericiaId: string, novoTreino: string) 
   refresh()
 }
 
+async function removerItem(personagemItemId: string) {
+  await $fetch(`/api/personagens/${route.params.id}/itens/${personagemItemId}`, { method: 'DELETE' })
+  refresh()
+}
+
 </script>
 
 <template>
@@ -29,7 +34,7 @@ async function atualizarTreino(personagemPericiaId: string, novoTreino: string) 
       <NuxtLink :to="`/fichas/${personagem.id}/editar`">Editar Ficha</NuxtLink>
       
       <h1>{{ personagem.nome }}</h1>
-      <p>{{ nomesClasse[personagem.classe] }} — {{ personagem.origem || 'Sem origem' }} — {{ personagem.trilha || 'Sem trilha' }}</p>
+      <p>{{ nomesClasse[personagem.classe] }} — {{ personagem.origem?.nome || 'Sem origem' }} — {{ personagem.trilha || 'Sem trilha' }}</p>
       <p>NEX: {{ personagem.nex }}%</p>
 
       <h2>Atributos</h2>
@@ -85,6 +90,7 @@ async function atualizarTreino(personagemPericiaId: string, novoTreino: string) 
       <ul v-if="personagem.itens?.length">
         <li v-for="pi in personagem.itens" :key="pi.id">
           {{ pi.item.nome }} (x{{ pi.quantidade }})
+          <button @click="removerItem(pi.id)">Remover</button>
         </li>
       </ul>
       <p v-else>Inventário vazio.</p>
