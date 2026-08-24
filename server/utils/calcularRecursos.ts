@@ -17,3 +17,16 @@ export function calcularRecursosMaximos(classe: Classe, nex: number, vigor: numb
 
   return { pvMaximo, peMaximo, sanidadeMaxima }
 }
+
+export function calcularCarga(forca: number, itens: { espacos: number; quantidade: number }[]) {
+  const espacoUsado = itens.reduce((total, i) => total + i.espacos * i.quantidade, 0)
+
+  const limite = forca > 0 ? forca * 5 : 2
+  const limiteMaximo = limite * 2
+
+  let status: 'normal' | 'sobrecarregado' | 'excedido' = 'normal'
+  if (espacoUsado > limiteMaximo) status = 'excedido'
+  else if (espacoUsado > limite) status = 'sobrecarregado'
+
+  return { espacoUsado, limite, limiteMaximo, status }
+}

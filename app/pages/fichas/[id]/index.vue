@@ -83,6 +83,14 @@ async function atualizarTreino(personagemPericiaId: string, novoTreino: string) 
       </ul>
       <p v-else>Inventário vazio.</p>
 
+
+      <h2>Carga</h2>
+      <p>
+        {{ personagem.carga.espacoUsado }} / {{ personagem.carga.limite }} espaços
+        <span v-if="personagem.carga.status === 'sobrecarregado'"> — Sobrecarregado!</span>
+        <span v-if="personagem.carga.status === 'excedido'"> — Excede o limite máximo!</span>
+      </p>
+
       <AdicionarItem
         :personagem-id="personagem.id"
         @adicionado="refresh()"

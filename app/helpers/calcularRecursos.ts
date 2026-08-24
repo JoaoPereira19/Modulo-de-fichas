@@ -18,3 +18,4 @@ export function calcularRecursosMaximos(classe: Classe, nex: number, vigor: numb
 
   return { pvMaximo, peMaximo, sanidadeMaxima }
 }
+
