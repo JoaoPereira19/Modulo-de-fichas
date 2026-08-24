@@ -1,5 +1,5 @@
 import { prisma } from '../../../utils/prisma'
-import { calcularRecursosMaximos, calcularCarga } from '../../../utils/calcularRecursos'
+import { calcularRecursosMaximos, calcularCarga, calcularDefesa, calcularDeslocamento } from '../../../utils/calcularRecursos'
 
 export default defineEventHandler(async (event) => {
   const id = getRouterParam(event, 'id')
@@ -29,5 +29,8 @@ export default defineEventHandler(async (event) => {
     personagem.itens.map((pi) => ({ espacos: pi.item.espacos, quantidade: pi.quantidade }))
   )
 
-  return { ...personagem, ...recursos, carga }
+  const defesa = calcularDefesa(personagem.agilidade)
+  const deslocamento = calcularDeslocamento(carga.status)
+
+  return { ...personagem, ...recursos, carga, defesa, deslocamento }
 })

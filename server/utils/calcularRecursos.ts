@@ -30,3 +30,12 @@ export function calcularCarga(forca: number, itens: { espacos: number; quantidad
 
   return { espacoUsado, limite, limiteMaximo, status }
 }
+
+export function calcularDefesa(agilidade: number) {
+  return 10 + agilidade
+}
+
+export function calcularDeslocamento(statusCarga: 'normal' | 'sobrecarregado' | 'excedido') {
+  const base = 9
+  return statusCarga === 'normal' ? base : base - 3
+}

@@ -48,6 +48,12 @@ async function atualizarTreino(personagemPericiaId: string, novoTreino: string) 
         <li>Sanidade: {{ personagem.sanidadeAtual }} / {{ personagem.sanidadeMaxima }}</li>
       </ul>
 
+      <h2>Combate</h2>
+      <ul>
+        <li>Defesa: {{ personagem.defesa }}</li>
+        <li>Deslocamento: {{ personagem.deslocamento }}m</li>
+      </ul>
+
       <h2>Perícias</h2>
       <ul v-if="personagem.pericias?.length">
         <li v-for="pp in personagem.pericias" :key="pp.id">
