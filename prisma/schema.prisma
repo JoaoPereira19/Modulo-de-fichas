@@ -1,14 +1,14 @@
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "sqlite"
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
 }
 
 model Usuario {
-  id               String   @id @default(cuid())
+  id               String   @id @default(auto()) @map("_id") @db.ObjectId
   nome             String
   email            String   @unique
   senhaHash        String
@@ -22,7 +22,7 @@ model Usuario {
 }
 
 model Personagem {
-  id            String   @id @default(cuid())
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
   nome          String
   classe        Classe
   trilha        String?
@@ -41,18 +41,18 @@ model Personagem {
   criadoEm      DateTime @default(now())
 
   usuario       Usuario  @relation(fields: [usuarioId], references: [id])
-  usuarioId     String
+  usuarioId     String   @db.ObjectId
+
+  origem        Origem?  @relation(fields: [origemId], references: [id])
+  origemId      String?  @db.ObjectId
 
   pericias      PersonagemPericia[]
   itens         PersonagemItem[]
   rituais       PersonagemRitual[]
   habilidades   Habilidade[]
-  
-  campanha      Campanha? @relation(fields: [campanhaId], references: [id])
-  campanhaId    String?
 
-  origem      Origem?  @relation(fields: [origemId], references: [id])
-  origemId    String?
+  campanha      Campanha? @relation(fields: [campanhaId], references: [id])
+  campanhaId    String?   @db.ObjectId
 }
 
 enum Classe {
@@ -62,20 +62,19 @@ enum Classe {
 }
 
 model Pericia {
-  id           String   @id @default(cuid())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   nome         String   @unique
   atributoBase String
   soTreinada   Boolean  @default(false)
   carga        Boolean  @default(false)
   kit          Boolean  @default(false)
 
-
   origem       OrigemPericia @default(OFICIAL)
   criadoPor    Usuario?      @relation(fields: [criadoPorId], references: [id])
-  criadoPorId  String?
+  criadoPorId  String?       @db.ObjectId
 
   campanha     Campanha?     @relation(fields: [campanhaId], references: [id])
-  campanhaId   String?
+  campanhaId   String?       @db.ObjectId
 
   personagens  PersonagemPericia[]
 }
@@ -86,14 +85,14 @@ enum OrigemPericia {
 }
 
 model PersonagemPericia {
-  id            String     @id @default(cuid())
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
   treino        Treino     @default(LEIGO)
 
   personagem    Personagem @relation(fields: [personagemId], references: [id])
-  personagemId  String
+  personagemId  String     @db.ObjectId
 
   pericia       Pericia    @relation(fields: [periciaId], references: [id])
-  periciaId     String
+  periciaId     String     @db.ObjectId
 
   @@unique([personagemId, periciaId])
 }
@@ -106,7 +105,7 @@ enum Treino {
 }
 
 model Ritual {
-  id           String   @id @default(cuid())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   nome         String
   circulo      Int
   elemento     String
@@ -116,10 +115,10 @@ model Ritual {
   origem       OrigemRitual @default(OFICIAL)
   livro        String?
   criadoPor    Usuario?     @relation(fields: [criadoPorId], references: [id])
-  criadoPorId  String?
+  criadoPorId  String?      @db.ObjectId
 
   campanha     Campanha?    @relation(fields: [campanhaId], references: [id])
-  campanhaId   String?
+  campanhaId   String?      @db.ObjectId
 
   personagens  PersonagemRitual[]
 }
@@ -130,38 +129,37 @@ enum OrigemRitual {
 }
 
 model PersonagemRitual {
-  id            String     @id @default(cuid())
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
 
   personagem    Personagem @relation(fields: [personagemId], references: [id])
-  personagemId  String
+  personagemId  String     @db.ObjectId
 
   ritual        Ritual     @relation(fields: [ritualId], references: [id])
-  ritualId      String
+  ritualId      String     @db.ObjectId
 
   @@unique([personagemId, ritualId])
 }
 
 model Item {
-  id           String   @id @default(cuid())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   nome         String
   descricao    String?
 
-  categoria    String?   // "0", "I", "II", "III", "IV" — limite de patente
-  espacos      Int       @default(1)
+  categoria    String?
+  espacos      Int      @default(1)
 
-  // Campos específicos de armas (null pra itens que não são armas)
   dano         String?
   critico      String?
   alcance      String?
-  tipoDano     String?   // C, P, I, B, Fogo...
+  tipoDano     String?
 
   origem       OrigemItem @default(OFICIAL)
   livro        String?
   criadoPor    Usuario?   @relation(fields: [criadoPorId], references: [id])
-  criadoPorId  String?
+  criadoPorId  String?    @db.ObjectId
 
   campanha     Campanha?  @relation(fields: [campanhaId], references: [id])
-  campanhaId   String?
+  campanhaId   String?    @db.ObjectId
 
   personagens  PersonagemItem[]
 }
@@ -172,50 +170,35 @@ enum OrigemItem {
 }
 
 model PersonagemItem {
-  id            String     @id @default(cuid())
+  id            String     @id @default(auto()) @map("_id") @db.ObjectId
   quantidade    Int        @default(1)
 
   personagem    Personagem @relation(fields: [personagemId], references: [id])
-  personagemId  String
+  personagemId  String     @db.ObjectId
 
   item          Item       @relation(fields: [itemId], references: [id])
-  itemId        String
+  itemId        String     @db.ObjectId
 
   @@unique([personagemId, itemId])
 }
 
-model Campanha {
-  id          String   @id @default(cuid())
-  nome        String
-  descricao   String?
-  criadoEm    DateTime @default(now())
-
-  mestre      Usuario  @relation(fields: [mestreId], references: [id])
-  mestreId    String
-
-  personagens          Personagem[]
-  periciasCustomizadas Pericia[]
-  rituaisCustomizados  Ritual[]
-  itensCustomizados    Item[]
-}
-
 model Origem {
-  id          String   @id @default(cuid())
-  nome        String   @unique
-  poderNome   String
+  id             String   @id @default(auto()) @map("_id") @db.ObjectId
+  nome           String   @unique
+  poderNome      String
   poderDescricao String
 
-  personagens Personagem[]
+  personagens    Personagem[]
 }
 
 model Habilidade {
-  id           String   @id @default(cuid())
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   nome         String
   descricao    String
   tipo         TipoHabilidade
 
   personagem   Personagem @relation(fields: [personagemId], references: [id])
-  personagemId String
+  personagemId String     @db.ObjectId
 }
 
 enum TipoHabilidade {
@@ -223,4 +206,19 @@ enum TipoHabilidade {
   TRILHA
   CLASSE
   PODER_PARANORMAL
+}
+
+model Campanha {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  nome        String
+  descricao   String?
+  criadoEm    DateTime @default(now())
+
+  mestre      Usuario  @relation(fields: [mestreId], references: [id])
+  mestreId    String   @db.ObjectId
+
+  personagens          Personagem[]
+  periciasCustomizadas Pericia[]
+  rituaisCustomizados  Ritual[]
+  itensCustomizados    Item[]
 }
