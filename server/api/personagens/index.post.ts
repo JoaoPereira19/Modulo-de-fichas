@@ -1,8 +1,10 @@
 import { prisma } from '../../utils/prisma'
 import { calcularRecursosMaximos } from '../../utils/calcularRecursos'
+import { obterUsuarioAtualId } from '../../utils/usuarioAtual'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
+  const usuarioId = await obterUsuarioAtualId()
 
   const nex = body.nex ?? 5
   const vigor = body.vigor ?? 1
@@ -27,7 +29,7 @@ export default defineEventHandler(async (event) => {
       pvAtual: pvMaximo,
       peAtual: peMaximo,
       sanidadeAtual: sanidadeMaxima,
-      usuarioId: body.usuarioId,
+      usuarioId,
     },
   })
 

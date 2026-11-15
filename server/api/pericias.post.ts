@@ -1,7 +1,9 @@
 import { prisma } from '../utils/prisma'
+import { obterUsuarioAtualId } from '../utils/usuarioAtual'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
+  const usuarioId = await obterUsuarioAtualId()
 
   const pericia = await prisma.pericia.create({
     data: {
@@ -11,7 +13,7 @@ export default defineEventHandler(async (event) => {
       carga: body.carga ?? false,
       kit: body.kit ?? false,
       origem: 'CUSTOMIZADO',
-      criadoPorId: 'usuario-teste-01', // temporário, até termos login (Fase 3)
+      criadoPorId: usuarioId,
     },
   })
 

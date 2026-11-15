@@ -1,7 +1,9 @@
 import { prisma } from '../utils/prisma'
+import { obterUsuarioAtualId } from '../utils/usuarioAtual'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
+  const usuarioId = await obterUsuarioAtualId()
 
   const item = await prisma.item.create({
     data: {
@@ -14,7 +16,7 @@ export default defineEventHandler(async (event) => {
       alcance: body.alcance || null,
       tipoDano: body.tipoDano || null,
       origem: 'CUSTOMIZADO',
-      criadoPorId: 'usuario-teste-01',
+      criadoPorId: usuarioId,
     },
   })
 

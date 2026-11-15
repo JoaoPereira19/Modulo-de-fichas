@@ -1,7 +1,9 @@
 import { prisma } from '../utils/prisma'
+import { obterUsuarioAtualId } from '../utils/usuarioAtual'
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event)
+  const usuarioId = await obterUsuarioAtualId()
 
   const ritual = await prisma.ritual.create({
     data: {
@@ -11,7 +13,7 @@ export default defineEventHandler(async (event) => {
       custoPE: body.custoPE,
       descricao: body.descricao,
       origem: 'CUSTOMIZADO',
-      criadoPorId: 'usuario-teste-01',
+      criadoPorId: usuarioId,
     },
   })
 

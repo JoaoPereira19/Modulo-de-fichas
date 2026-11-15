@@ -11,10 +11,7 @@ export const usePersonagensStore = defineStore('personagens', () => {
   async function criarPersonagem(dados: any) {
   const novo = await $fetch('/api/personagens', {
     method: 'POST',
-    body: {
-      ...dados,
-      usuarioId: 'usuario-teste-01', // temporário, até termos login (Fase 3)
-    },
+    body: dados, // o servidor decide qual é o usuário (ver server/utils/usuarioAtual.ts)
   })
   lista.value.push(novo)
   return novo
