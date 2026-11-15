@@ -3,11 +3,13 @@ const route = useRoute()
 const router = useRouter()
 
 const { data: personagem } = await useFetch(`/api/personagens/${route.params.id}`)
+const { data: origensDisponiveis } = await useFetch('/api/origens')
 
 const nome = ref(personagem.value?.nome ?? '')
-const origem = ref(personagem.value?.origemId ?? '')
+const origemId = ref(personagem.value?.origemId ?? '')
 const classe = ref(personagem.value?.classe ?? 'COMBATENTE')
 const trilha = ref(personagem.value?.trilha ?? '')
+const nex = ref(personagem.value?.nex ?? 5)
 
 const agilidade = ref(personagem.value?.agilidade ?? 1)
 const forca = ref(personagem.value?.forca ?? 1)
@@ -24,9 +26,10 @@ async function salvar() {
     method: 'PUT',
     body: {
       nome: nome.value,
-      origem: origem.value || null,
+      origemId: origemId.value || null,
       classe: classe.value,
       trilha: trilha.value || null,
+      nex: nex.value,
       agilidade: agilidade.value,
       forca: forca.value,
       intelecto: intelecto.value,
@@ -54,7 +57,12 @@ async function salvar() {
 
       <div>
         <label>Origem</label>
-        <input v-model="origem" />
+        <select v-model="origemId">
+          <option value="">Nenhuma</option>
+          <option v-for="o in origensDisponiveis" :key="o.id" :value="o.id">
+            {{ o.nome }}
+          </option>
+        </select>
       </div>
 
       <div>
@@ -69,6 +77,11 @@ async function salvar() {
       <div>
         <label>Trilha</label>
         <input v-model="trilha" />
+      </div>
+
+      <div>
+        <label>NEX (%)</label>
+        <input v-model.number="nex" type="number" min="5" max="99" />
       </div>
 
       <h2>Atributos</h2>
