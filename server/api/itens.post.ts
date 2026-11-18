@@ -1,8 +1,10 @@
 import { prisma } from '../utils/prisma'
+import { lerBodyValidado } from '../utils/validacao'
+import { esquemaCriarItem } from '../utils/esquemas'
 import { obterUsuarioAtualId } from '../utils/usuarioAtual'
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
+  const body = await lerBodyValidado(event, esquemaCriarItem)
   const usuarioId = await obterUsuarioAtualId()
 
   const item = await prisma.item.create({

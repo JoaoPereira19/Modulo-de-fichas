@@ -1,7 +1,8 @@
 import { prisma } from '../../../utils/prisma'
+import { lerIdDaRota } from '../../../utils/validacao'
 
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, 'id')
+  const id = lerIdDaRota(event, 'id')
 
   // No MongoDB o Prisma não deixa apagar uma ficha que ainda tem "filhos"
   // (perícias, rituais, itens, habilidades). Então apagamos os filhos primeiro.

@@ -1,14 +1,16 @@
 import { Prisma } from '@prisma/client'
 import { prisma } from '../../../utils/prisma'
+import { lerIdDaRota, lerBodyValidado } from '../../../utils/validacao'
+import { esquemaAdicionarItem } from '../../../utils/esquemas'
 
 export default defineEventHandler(async (event) => {
-  const personagemId = getRouterParam(event, 'id')
-  const body = await readBody(event)
+  const personagemId = lerIdDaRota(event, 'id')
+  const body = await lerBodyValidado(event, esquemaAdicionarItem)
 
   try {
     const personagemItem = await prisma.personagemItem.create({
       data: {
-        personagemId: personagemId!,
+        personagemId: personagemId,
         itemId: body.itemId,
         quantidade: body.quantidade ?? 1,
       },

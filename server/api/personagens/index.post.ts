@@ -1,9 +1,11 @@
 import { prisma } from '../../utils/prisma'
 import { calcularRecursosMaximos } from '../../utils/calcularRecursos'
 import { obterUsuarioAtualId } from '../../utils/usuarioAtual'
+import { lerBodyValidado } from '../../utils/validacao'
+import { esquemaCriarPersonagem } from '../../utils/esquemas'
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event)
+  const body = await lerBodyValidado(event, esquemaCriarPersonagem)
   const usuarioId = await obterUsuarioAtualId()
 
   const nex = body.nex ?? 5
@@ -19,7 +21,7 @@ export default defineEventHandler(async (event) => {
       nome: body.nome,
       classe: body.classe,
       origemId: body.origemId ?? null,
-      trilha: body.trilha ?? null,
+      trilha: body.trilha,
       nex,
       agilidade: body.agilidade ?? 1,
       forca: body.forca ?? 1,

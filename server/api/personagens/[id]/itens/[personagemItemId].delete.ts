@@ -1,7 +1,8 @@
 import { prisma } from '../../../../utils/prisma'
+import { lerIdDaRota } from '../../../../utils/validacao'
 
 export default defineEventHandler(async (event) => {
-  const personagemItemId = getRouterParam(event, 'personagemItemId')
+  const personagemItemId = lerIdDaRota(event, 'personagemItemId')
 
   await prisma.personagemItem.delete({ where: { id: personagemItemId } })
 

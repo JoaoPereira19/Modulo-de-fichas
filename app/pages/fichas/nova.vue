@@ -1,33 +1,21 @@
 <script setup lang="ts">
+import type { DadosFicha } from '~/components/ficha/FormularioFicha.vue'
+
 const personagensStore = usePersonagensStore()
 const router = useRouter()
 
-const nome = ref('')
-const origemId = ref('')
-const { data: origensDisponiveis } = await useFetch('/api/origens')
-const classe = ref('COMBATENTE')
-const trilha = ref('')
+const erro = ref('')
 
-const agilidade = ref(1)
-const forca = ref(1)
-const intelecto = ref(1)
-const presenca = ref(1)
-const vigor = ref(1)
+async function criar(dados: DadosFicha) {
+  erro.value = ''
 
-async function salvar() {
-  const novo = await personagensStore.criarPersonagem({
-    nome: nome.value,
-    classe: classe.value,
-    origemId: origemId.value || null,
-    trilha: trilha.value || null,
-    agilidade: agilidade.value,
-    forca: forca.value,
-    intelecto: intelecto.value,
-    presenca: presenca.value,
-    vigor: vigor.value,
-  })
-
-  router.push(`/fichas/${novo.id}`)
+  try {
+    const novo = await personagensStore.criarPersonagem(dados)
+    router.push(`/fichas/${novo.id}`)
+  } catch (e: any) {
+    // O servidor devolve 400 com a explicação quando algum campo é inválido.
+    erro.value = e.data?.statusMessage || e.statusMessage || 'Erro ao criar a ficha.'
+  }
 }
 </script>
 
@@ -35,60 +23,8 @@ async function salvar() {
   <div>
     <h1>Nova Ficha</h1>
 
-    <form @submit.prevent="salvar">
-      <div>
-        <label>Nome</label>
-        <input v-model="nome" required />
-      </div>
-      
-      <div>
-        <label>Origem</label>
-        <select v-model="origemId">
-          <option value="">Nenhuma</option>
-          <option v-for="o in origensDisponiveis" :key="o.id" :value="o.id">
-            {{ o.nome }}
-          </option>
-        </select>
-      </div>
-      
-      <div>
-        <label>Classe</label>
-        <select v-model="classe">
-          <option value="COMBATENTE">Combatente</option>
-          <option value="ESPECIALISTA">Especialista</option>
-          <option value="OCULTISTA">Ocultista</option>
-        </select>
-      </div>
-
-
-      <div>
-        <label>Trilha</label>
-        <input v-model="trilha" />
-      </div>
-
-      <h2>Atributos</h2>
-      <div>
-        <label>Agilidade</label>
-        <input v-model.number="agilidade" type="number" min="0" max="5" />
-      </div>
-      <div>
-        <label>Força</label>
-        <input v-model.number="forca" type="number" min="0" max="5" />
-      </div>
-      <div>
-        <label>Intelecto</label>
-        <input v-model.number="intelecto" type="number" min="0" max="5" />
-      </div>
-      <div>
-        <label>Presença</label>
-        <input v-model.number="presenca" type="number" min="0" max="5" />
-      </div>
-      <div>
-        <label>Vigor</label>
-        <input v-model.number="vigor" type="number" min="0" max="5" />
-      </div>
-
-      <button type="submit">Criar Ficha</button>
-    </form>
+    <FormularioFicha texto-botao="Criar Ficha" :erro="erro" @salvar="criar">
+      <NuxtLink to="/fichas">Cancelar</NuxtLink>
+    </FormularioFicha>
   </div>
 </template>
