@@ -1,4 +1,9 @@
-type Classe = 'COMBATENTE' | 'ESPECIALISTA' | 'OCULTISTA'
+// Regras de Ordem Paranormal usadas tanto pelo servidor (server/) quanto pelas telas (app/).
+// Por estar em shared/, existe uma cópia só: mudou aqui, mudou nos dois lados.
+// Importe com: import { ... } from '#shared/utils/calcularRecursos'
+// Atenção: código em shared/ não pode usar nada exclusivo do servidor (Prisma, banco) nem do navegador.
+
+export type Classe = 'COMBATENTE' | 'ESPECIALISTA' | 'OCULTISTA'
 
 const TABELA_CLASSES = {
   COMBATENTE:   { pvBase: 20, pvPorNex: 4, peBase: 2, pePorNex: 2, sanBase: 12, sanPorNex: 3 },

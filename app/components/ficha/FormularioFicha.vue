@@ -1,6 +1,7 @@
 <script setup lang="ts">
 // Formulário único de ficha, usado por "Nova Ficha" e "Editar Ficha".
 // Ele só cuida dos campos. Quem decide o que fazer ao salvar (POST ou PUT) é a página que o usa.
+import { calcularRecursosMaximos, calcularDefesa, calcularCarga } from '#shared/utils/calcularRecursos'
 
 export type DadosFicha = {
   nome: string
@@ -50,6 +51,21 @@ const form = ref({
   pvAtual: v.pvAtual ?? 0,
   peAtual: v.peAtual ?? 0,
   sanidadeAtual: v.sanidadeAtual ?? 0,
+})
+
+// computed = valor calculado a partir de outros. O Vue refaz a conta sozinho sempre que
+// algum valor usado lá dentro muda (classe, NEX, Vigor...), e a tela se atualiza na hora.
+// São as mesmas funções que o servidor usa, vindas de shared/.
+const previa = computed(() => {
+  const f = form.value
+  // Campo numérico apagado vira "" no v-model; Number("") é 0. O NEX volta a 5 nesse caso.
+  const nex = Number(f.nex) || 5
+
+  return {
+    ...calcularRecursosMaximos(f.classe, nex, Number(f.vigor), Number(f.presenca)),
+    defesa: calcularDefesa(Number(f.agilidade)),
+    limiteCarga: calcularCarga(Number(f.forca), []).limite,
+  }
 })
 
 // Lista usada para desenhar os 5 campos de atributo com um v-for, em vez de repetir 5 blocos.
@@ -129,18 +145,27 @@ function enviar() {
       <input v-model.number="form[a.campo]" type="number" min="0" max="5" />
     </div>
 
+    <h2>Prévia</h2>
+    <ul>
+      <li>PV máximo: {{ previa.pvMaximo }}</li>
+      <li>PE máximo: {{ previa.peMaximo }}</li>
+      <li>Sanidade máxima: {{ previa.sanidadeMaxima }}</li>
+      <li>Defesa: {{ previa.defesa }}</li>
+      <li>Limite de carga: {{ previa.limiteCarga }} espaços</li>
+    </ul>
+
     <template v-if="mostrarRecursos">
       <h2>Recursos</h2>
       <div>
-        <label>PV Atual</label>
+        <label>PV Atual (máx. {{ previa.pvMaximo }})</label>
         <input v-model.number="form.pvAtual" type="number" min="0" />
       </div>
       <div>
-        <label>PE Atual</label>
+        <label>PE Atual (máx. {{ previa.peMaximo }})</label>
         <input v-model.number="form.peAtual" type="number" min="0" />
       </div>
       <div>
-        <label>Sanidade Atual</label>
+        <label>Sanidade Atual (máx. {{ previa.sanidadeMaxima }})</label>
         <input v-model.number="form.sanidadeAtual" type="number" min="0" />
       </div>
     </template>

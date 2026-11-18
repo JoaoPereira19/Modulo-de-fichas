@@ -1,6 +1,6 @@
 import { prisma } from '../../../utils/prisma'
 import { lerIdDaRota } from '../../../utils/validacao'
-import { calcularRecursosMaximos, calcularCarga, calcularDefesa, calcularDeslocamento } from '../../../utils/calcularRecursos'
+import { calcularRecursosMaximos, calcularCarga, calcularDefesa, calcularDeslocamento } from '#shared/utils/calcularRecursos'
 
 export default defineEventHandler(async (event) => {
   const id = lerIdDaRota(event, 'id')
