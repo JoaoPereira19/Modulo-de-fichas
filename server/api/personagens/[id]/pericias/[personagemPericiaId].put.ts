@@ -1,8 +1,9 @@
 import { prisma } from '../../../../utils/prisma'
+import { definirRota } from '../../../../utils/erros'
 import { lerIdDaRota, lerBodyValidado } from '../../../../utils/validacao'
 import { esquemaAlterarTreino } from '../../../../utils/esquemas'
 
-export default defineEventHandler(async (event) => {
+export default definirRota(async (event) => {
   const personagemPericiaId = lerIdDaRota(event, 'personagemPericiaId')
   const body = await lerBodyValidado(event, esquemaAlterarTreino)
 
@@ -13,4 +14,6 @@ export default defineEventHandler(async (event) => {
   })
 
   return atualizado
+}, {
+  P2025: 'Essa perícia não está nessa ficha.',
 })

@@ -25,7 +25,7 @@ async function adicionar() {
     itemSelecionado.value = ''
     quantidade.value = 1
   } catch (e: any) {
-    erro.value = e.statusMessage || e.data?.statusMessage || 'Erro ao adicionar item.'
+    erro.value = mensagemDeErro(e, 'Erro ao adicionar item.')
   }
 }
 </script>

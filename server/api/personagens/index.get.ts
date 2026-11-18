@@ -1,6 +1,7 @@
 import { prisma } from '../../utils/prisma'
+import { definirRota } from '../../utils/erros'
 
-export default defineEventHandler(async (event) => {
+export default definirRota(async (event) => {
   // Por enquanto, sem autenticação ainda (Fase 3), pegamos todas as fichas
   const personagens = await prisma.personagem.findMany({
     include: {

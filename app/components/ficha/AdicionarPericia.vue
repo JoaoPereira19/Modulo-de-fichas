@@ -25,7 +25,7 @@ async function adicionar() {
     periciaSelecionada.value = ''
     treino.value = 'LEIGO'
   } catch (e: any) {
-    erro.value = e.statusMessage || e.data?.statusMessage || 'Erro ao adicionar perícia.'
+    erro.value = mensagemDeErro(e, 'Erro ao adicionar perícia.')
   }
 }
 </script>

@@ -7,19 +7,27 @@ const soTreinada = ref(false)
 const carga = ref(false)
 const kit = ref(false)
 
-async function salvar() {
-  await $fetch('/api/pericias', {
-    method: 'POST',
-    body: {
-      nome: nome.value,
-      atributoBase: atributoBase.value,
-      soTreinada: soTreinada.value,
-      carga: carga.value,
-      kit: kit.value,
-    },
-  })
+const erro = ref('')
 
-  router.push('/catalogo/nova-pericia')
+async function salvar() {
+  erro.value = ''
+
+  try {
+    await $fetch('/api/pericias', {
+      method: 'POST',
+      body: {
+        nome: nome.value,
+        atributoBase: atributoBase.value,
+        soTreinada: soTreinada.value,
+        carga: carga.value,
+        kit: kit.value,
+      },
+    })
+
+    router.push('/catalogo/nova-pericia')
+  } catch (e: any) {
+    erro.value = mensagemDeErro(e, 'Erro ao criar perícia.')
+  }
 }
 </script>
 
@@ -53,6 +61,8 @@ async function salvar() {
       <div>
         <label><input v-model="kit" type="checkbox" /> Exige kit</label>
       </div>
+
+      <p v-if="erro" style="color: red">{{ erro }}</p>
 
       <button type="submit">Criar Perícia</button>
     </form>

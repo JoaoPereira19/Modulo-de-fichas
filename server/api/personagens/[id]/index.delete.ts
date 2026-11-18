@@ -1,7 +1,8 @@
 import { prisma } from '../../../utils/prisma'
+import { definirRota } from '../../../utils/erros'
 import { lerIdDaRota } from '../../../utils/validacao'
 
-export default defineEventHandler(async (event) => {
+export default definirRota(async (event) => {
   const id = lerIdDaRota(event, 'id')
 
   // No MongoDB o Prisma não deixa apagar uma ficha que ainda tem "filhos"
@@ -16,4 +17,6 @@ export default defineEventHandler(async (event) => {
   ])
 
   return { sucesso: true }
+}, {
+  P2025: 'Ficha não encontrada.',
 })

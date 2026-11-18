@@ -19,7 +19,7 @@ async function salvar(dados: DadosFicha) {
     router.push(`/fichas/${route.params.id}`)
   } catch (e: any) {
     // O servidor devolve 400 com a explicação quando algum campo é inválido.
-    erro.value = e.data?.statusMessage || e.statusMessage || 'Erro ao salvar a ficha.'
+    erro.value = mensagemDeErro(e, 'Erro ao salvar a ficha.')
   }
 }
 </script>

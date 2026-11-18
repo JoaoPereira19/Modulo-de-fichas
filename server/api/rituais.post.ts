@@ -1,9 +1,10 @@
 import { prisma } from '../utils/prisma'
+import { definirRota } from '../utils/erros'
 import { lerBodyValidado } from '../utils/validacao'
 import { esquemaCriarRitual } from '../utils/esquemas'
 import { obterUsuarioAtualId } from '../utils/usuarioAtual'
 
-export default defineEventHandler(async (event) => {
+export default definirRota(async (event) => {
   const body = await lerBodyValidado(event, esquemaCriarRitual)
   const usuarioId = await obterUsuarioAtualId()
 

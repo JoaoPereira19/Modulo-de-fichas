@@ -1,8 +1,9 @@
 import { prisma } from '../../../utils/prisma'
+import { definirRota, erroHttp } from '../../../utils/erros'
 import { lerIdDaRota } from '../../../utils/validacao'
 import { calcularRecursosMaximos, calcularCarga, calcularDefesa, calcularDeslocamento } from '#shared/utils/calcularRecursos'
 
-export default defineEventHandler(async (event) => {
+export default definirRota(async (event) => {
   const id = lerIdDaRota(event, 'id')
 
   const personagem = await prisma.personagem.findUnique({
@@ -16,7 +17,7 @@ export default defineEventHandler(async (event) => {
 })
 
   if (!personagem) {
-    throw createError({ statusCode: 404, statusMessage: 'Ficha não encontrada' })
+    throw erroHttp(404, 'Ficha não encontrada.')
   }
 
   const recursos = calcularRecursosMaximos(

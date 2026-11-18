@@ -1,8 +1,9 @@
 import { prisma } from '../../../utils/prisma'
+import { definirRota } from '../../../utils/erros'
 import { lerBodyValidado, lerIdDaRota } from '../../../utils/validacao'
 import { esquemaEditarPersonagem } from '../../../utils/esquemas'
 
-export default defineEventHandler(async (event) => {
+export default definirRota(async (event) => {
   const id = lerIdDaRota(event, 'id')
 
   // Só chegam aqui dados no formato certo; campos com nome desconhecido já foram recusados com 400.
@@ -14,4 +15,6 @@ export default defineEventHandler(async (event) => {
   })
 
   return personagem
+}, {
+  P2025: 'Ficha não encontrada.',
 })

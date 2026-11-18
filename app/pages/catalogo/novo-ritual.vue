@@ -7,19 +7,27 @@ const elemento = ref('Conhecimento')
 const custoPE = ref(1)
 const descricao = ref('')
 
-async function salvar() {
-  await $fetch('/api/rituais', {
-    method: 'POST',
-    body: {
-      nome: nome.value,
-      circulo: circulo.value,
-      elemento: elemento.value,
-      custoPE: custoPE.value,
-      descricao: descricao.value,
-    },
-  })
+const erro = ref('')
 
-  router.push('/catalogo/novo-ritual')
+async function salvar() {
+  erro.value = ''
+
+  try {
+    await $fetch('/api/rituais', {
+      method: 'POST',
+      body: {
+        nome: nome.value,
+        circulo: circulo.value,
+        elemento: elemento.value,
+        custoPE: custoPE.value,
+        descricao: descricao.value,
+      },
+    })
+
+    router.push('/catalogo/novo-ritual')
+  } catch (e: any) {
+    erro.value = mensagemDeErro(e, 'Erro ao criar ritual.')
+  }
 }
 </script>
 
@@ -63,6 +71,8 @@ async function salvar() {
         <label>Descrição</label>
         <textarea v-model="descricao" required></textarea>
       </div>
+
+      <p v-if="erro" style="color: red">{{ erro }}</p>
 
       <button type="submit">Criar Ritual</button>
     </form>

@@ -14,7 +14,7 @@ async function criar(dados: DadosFicha) {
     router.push(`/fichas/${novo.id}`)
   } catch (e: any) {
     // O servidor devolve 400 com a explicação quando algum campo é inválido.
-    erro.value = e.data?.statusMessage || e.statusMessage || 'Erro ao criar a ficha.'
+    erro.value = mensagemDeErro(e, 'Erro ao criar a ficha.')
   }
 }
 </script>

@@ -20,7 +20,7 @@ async function adicionar() {
     emit('adicionado', novo)
     ritualSelecionado.value = ''
   } catch (e: any) {
-    erro.value = e.statusMessage || e.data?.statusMessage || 'Erro ao adicionar ritual.'
+    erro.value = mensagemDeErro(e, 'Erro ao adicionar ritual.')
   }
 }
 </script>

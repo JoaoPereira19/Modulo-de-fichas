@@ -11,22 +11,30 @@ const critico = ref('')
 const alcance = ref('')
 const tipoDano = ref('')
 
-async function salvar() {
-  await $fetch('/api/itens', {
-    method: 'POST',
-    body: {
-      nome: nome.value,
-      descricao: descricao.value,
-      categoria: categoria.value,
-      espacos: espacos.value,
-      dano: ehArma.value ? dano.value : null,
-      critico: ehArma.value ? critico.value : null,
-      alcance: ehArma.value ? alcance.value : null,
-      tipoDano: ehArma.value ? tipoDano.value : null,
-    },
-  })
+const erro = ref('')
 
-  router.push('/catalogo/novo-item')
+async function salvar() {
+  erro.value = ''
+
+  try {
+    await $fetch('/api/itens', {
+      method: 'POST',
+      body: {
+        nome: nome.value,
+        descricao: descricao.value,
+        categoria: categoria.value,
+        espacos: espacos.value,
+        dano: ehArma.value ? dano.value : null,
+        critico: ehArma.value ? critico.value : null,
+        alcance: ehArma.value ? alcance.value : null,
+        tipoDano: ehArma.value ? tipoDano.value : null,
+      },
+    })
+
+    router.push('/catalogo/novo-item')
+  } catch (e: any) {
+    erro.value = mensagemDeErro(e, 'Erro ao criar item.')
+  }
 }
 </script>
 
@@ -83,6 +91,8 @@ async function salvar() {
           <input v-model="tipoDano" placeholder="ex: C, P, I, B, Fogo" />
         </div>
       </template>
+
+      <p v-if="erro" style="color: red">{{ erro }}</p>
 
       <button type="submit">Criar Item</button>
     </form>

@@ -1,9 +1,10 @@
 import { prisma } from '../utils/prisma'
+import { definirRota } from '../utils/erros'
 import { lerBodyValidado } from '../utils/validacao'
 import { esquemaCriarPericia } from '../utils/esquemas'
 import { obterUsuarioAtualId } from '../utils/usuarioAtual'
 
-export default defineEventHandler(async (event) => {
+export default definirRota(async (event) => {
   const body = await lerBodyValidado(event, esquemaCriarPericia)
   const usuarioId = await obterUsuarioAtualId()
 
@@ -20,4 +21,6 @@ export default defineEventHandler(async (event) => {
   })
 
   return pericia
+}, {
+  P2002: 'Já existe uma perícia com esse nome.',
 })

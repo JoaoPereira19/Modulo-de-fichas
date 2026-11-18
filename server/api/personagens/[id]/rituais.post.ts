@@ -1,29 +1,21 @@
-import { Prisma } from '@prisma/client'
 import { prisma } from '../../../utils/prisma'
+import { definirRota } from '../../../utils/erros'
 import { lerIdDaRota, lerBodyValidado } from '../../../utils/validacao'
 import { esquemaAdicionarRitual } from '../../../utils/esquemas'
 
-export default defineEventHandler(async (event) => {
+export default definirRota(async (event) => {
   const personagemId = lerIdDaRota(event, 'id')
   const body = await lerBodyValidado(event, esquemaAdicionarRitual)
 
-  try {
-    const personagemRitual = await prisma.personagemRitual.create({
-      data: {
-        personagemId: personagemId,
-        ritualId: body.ritualId,
-      },
-      include: { ritual: true },
-    })
-
-    return personagemRitual
-  } catch (e) {
-    if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === 'P2002') {
-      throw createError({
-        statusCode: 409,
-        statusMessage: 'Esse ritual já foi adicionado a essa ficha.',
-      })
-    }
-    throw e
-  }
+  return prisma.personagemRitual.create({
+    data: {
+      // connect: o Prisma confere se a ficha e o registro do catálogo existem antes de criar a ligação.
+      personagem: { connect: { id: personagemId } },
+      ritual: { connect: { id: body.ritualId } },
+    },
+    include: { ritual: true },
+  })
+}, {
+  P2002: 'Esse ritual já foi adicionado a essa ficha.',
+  P2025: 'Ficha ou ritual não encontrado.',
 })

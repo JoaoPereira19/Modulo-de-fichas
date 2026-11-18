@@ -1,5 +1,6 @@
 import type { H3Event } from 'h3'
 import { z } from 'zod'
+import { erroHttp } from './erros'
 
 // Mensagens padrão do zod em português (usadas quando o esquema não define uma própria).
 z.config(z.locales.pt())
@@ -18,10 +19,7 @@ export async function lerBodyValidado<T extends z.ZodType>(event: H3Event, esque
   const resultado = esquema.safeParse(body ?? {})
 
   if (!resultado.success) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: `Dados inválidos. ${descreverProblemas(resultado.error)}`,
-    })
+    throw erroHttp(400, `Dados inválidos. ${descreverProblemas(resultado.error)}`)
   }
 
   return resultado.data
@@ -33,7 +31,7 @@ export function lerIdDaRota(event: H3Event, nome: string) {
   const valor = getRouterParam(event, nome)
 
   if (!valor || !/^[0-9a-f]{24}$/i.test(valor)) {
-    throw createError({ statusCode: 400, statusMessage: `O parâmetro "${nome}" não é um id válido.` })
+    throw erroHttp(400, `O parâmetro "${nome}" não é um id válido.`)
   }
 
   return valor
