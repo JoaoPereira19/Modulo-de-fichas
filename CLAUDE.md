@@ -35,6 +35,8 @@ João é **iniciante total em Vue/Nuxt** e quer entender o que está fazendo. Po
 | Banco | **MongoDB Atlas** (migrado do SQLite ao trocar de notebook) |
 | Gerenciador | **pnpm** 10.x |
 | TypeScript | `<script setup lang="ts">` quando há anotações de tipo |
+| Validação | **zod 4** nos corpos das requisições (`server/utils/esquemas.ts`) |
+| Testes | **Vitest 5** (`pnpm test`), testes em `tests/` |
 
 ### Armadilhas conhecidas (já custaram horas)
 
@@ -66,9 +68,12 @@ João é **iniciante total em Vue/Nuxt** e quer entender o que está fazendo. Po
 app/
 ├── app.vue                     # só <NuxtPage />
 ├── components/ficha/
+│   ├── FormularioFicha.vue     # formulário único de Nova/Editar Ficha, com prévia ao vivo
 │   ├── AdicionarPericia.vue
 │   ├── AdicionarRitual.vue
 │   └── AdicionarItem.vue
+├── utils/
+│   └── mensagemDeErro.ts       # lê a mensagem de erro do servidor (auto-importado)
 ├── pages/
 │   ├── index.vue
 │   ├── campanha/[id].vue, campanhas/index.vue   # exercícios antigos com dados fixos
@@ -98,14 +103,33 @@ server/
 │   └── campanhas.get.ts        # exercício antigo
 └── utils/
     ├── prisma.ts               # instância única do PrismaClient
-    └── calcularRecursos.ts     # fórmulas de PV/PE/SAN, carga, defesa, deslocamento
+    ├── usuarioAtual.ts         # obterUsuarioAtualId(): usuário do seed até existir login (Fase 3)
+    ├── validacao.ts            # lerBodyValidado() e lerIdDaRota()
+    ├── esquemas.ts             # esquemas zod de cada requisição
+    └── erros.ts                # definirRota() e erroHttp(): traduz erros do Prisma
+
+shared/
+└── utils/
+    └── calcularRecursos.ts     # fórmulas de PV/PE/SAN, carga, defesa, deslocamento (servidor + telas)
+
+tests/
+└── calcularRecursos.test.ts    # testes das regras do jogo (Vitest)
 
 prisma/
 ├── schema.prisma
 └── seed.ts
 ```
 
-Os imports dentro de `server/api/` usam **caminhos relativos** (ex.: `'../../../utils/prisma'`), porque o alias `~/` não funcionou bem em `server/`.
+Os imports dentro de `server/api/` usam **caminhos relativos** (ex.: `'../../../utils/prisma'`), porque o alias `~/` não funcionou bem em `server/`. A exceção é `shared/`, importado com `#shared/utils/...` tanto no servidor quanto nas telas.
+
+### Padrões das rotas (seguir em toda rota nova)
+
+- Usar `definirRota(async (event) => { ... }, { P2002: 'mensagem', P2025: 'mensagem' })` no lugar de `defineEventHandler`. Erros do Prisma viram 409/404 com mensagem em português; não escrever `try/catch` para isso.
+- Ler o corpo com `lerBodyValidado(event, esquema)` e os parâmetros da URL com `lerIdDaRota(event, 'id')`. Os esquemas usam `z.strictObject`, então **campo com nome errado dá 400** (foi assim que o bug `origem` × `origemId` passou despercebido antes).
+- Criar erros com `erroHttp(status, mensagem)` (usa `message`, não `statusMessage`).
+- Ao criar uma ligação (ficha ↔ catálogo), usar `connect` (`personagem: { connect: { id } }`), não o id direto: no Mongo o Prisma não confere se o registro existe e gravaria uma ligação órfã.
+- Excluir algo com "filhos" exige apagar os filhos antes, numa `$transaction` (ver `[id]/index.delete.ts`).
+- Nas telas, mostrar erros com `mensagemDeErro(e, 'texto padrão')`.
 
 ---
 
@@ -134,9 +158,9 @@ Popula: usuário de teste (`joao@teste.com`), **28 perícias**, **26 origens**, 
 
 ## 5. Regras de Ordem Paranormal já implementadas
 
-Calculadas **em tempo real** em `server/utils/calcularRecursos.ts` e devolvidas em `GET /api/personagens/[id]` (não ficam gravadas no banco).
+Calculadas **em tempo real** em `shared/utils/calcularRecursos.ts`: o servidor devolve os valores em `GET /api/personagens/[id]` (não ficam gravados no banco) e o `FormularioFicha.vue` usa as mesmas funções para a prévia ao vivo. Cobertas por testes em `tests/calcularRecursos.test.ts`; rode `pnpm test` depois de mexer em qualquer fórmula.
 
-Níveis ganhos = `max(0, floor((NEX - 5) / 5))`.
+Níveis ganhos = `max(0, floor((NEX - 5) / 5))`, **exceto NEX 99, que vale 19 níveis** (o NEX sobe de 5 em 5 até 95% e depois vai para 99%, um patamar próprio). Função `calcularNiveisGanhos`.
 
 | Classe | PV | PE | Sanidade |
 |---|---|---|---|
@@ -164,33 +188,34 @@ Níveis ganhos = `max(0, floor((NEX - 5) / 5))`.
 
 ---
 
-## 7. O que funciona (validado antes da troca para Mongo)
+## 7. O que funciona (testado com o MongoDB, novembro/2026)
 
-- Listar, criar, ver e editar ficha (nome, classe, origem, trilha, atributos, recursos).
-- Alterar o treino de cada perícia na ficha.
-- Adicionar rituais e itens à ficha, com mensagem amigável para duplicata (erro `P2002` → HTTP 409).
-- Cálculos de PV/PE/Sanidade máximos, carga, defesa e deslocamento.
+- Listar, criar, ver, editar (incluindo origem e NEX) e excluir ficha. A exclusão apaga junto perícias, rituais, itens e habilidades da ficha.
+- Formulário de ficha com prévia ao vivo de PV/PE/SAN máximos, Defesa e limite de carga.
+- Alterar o treino de cada perícia; adicionar rituais e itens; remover item.
+- Validação de todos os dados recebidos (400 com explicação) e erros do Prisma traduzidos (409 duplicata, 404 inexistente), exibidos nas telas.
+- Cálculos de PV/PE/Sanidade máximos, carga, defesa e deslocamento, com testes automáticos.
 
 ---
 
 ## 8. Onde parou
 
-A **última sessão foi a migração do SQLite para MongoDB Atlas numa máquina nova**. Chegou-se a:
+A sessão de novembro/2026 corrigiu os bugs pós-migração e reforçou a base:
 
-- Prisma travado na 6.19.x, `schema.prisma` convertido para MongoDB, `prisma db push` e `prisma db seed` rodando com sucesso (28 perícias, 26 origens, 85 rituais, 77 itens).
-- Tentativa de commit no VS Code falhou por falta de `user.name`/`user.email` do Git na máquina nova (resolver com `git config --global`). **O commit dessa migração ainda precisa ser feito/confirmado.**
+- `usuarioId` fixo substituído por `obterUsuarioAtualId()` (usuário do seed).
+- Edição de ficha salvando origem e NEX; exclusão de ficha funcionando.
+- zod em todas as rotas, `definirRota` para erros do Prisma, `connect` contra ligações órfãs.
+- `FormularioFicha.vue` único, regras em `shared/`, Vitest com testes das fórmulas (corrigiu o NEX 99).
+- Git configurado na máquina nova (`JoaoPereira19`); commits enviados ao GitHub.
 
 ### Pendências imediatas (em ordem de prioridade)
 
-1. **Trocar o `usuarioId` fixo `'usuario-teste-01'`**. Ele ainda aparece em `app/stores/personagens.ts` (`criarPersonagem`) e em `server/api/pericias.post.ts`, `rituais.post.ts` e `itens.post.ts` (`criadoPorId`). No MongoDB isso **não é um ObjectId válido e vai quebrar a criação de ficha**. Solução temporária sugerida: no servidor, usar `prisma.usuario.findFirstOrThrow()` (usuário do seed) até existir login na Fase 3.
-2. **Testar tudo na tela com o Mongo** (`pnpm run dev`): `/fichas`, criar ficha de cada classe, conferir os valores de PV/PE/Sanidade (ex.: Combatente NEX 5 com Vigor 1 → PV 21; NEX 10 → 26), adicionar ritual/item, alterar treino, editar ficha.
-3. **Confirmar os 4 ajustes que estavam sendo aplicados quando a troca de máquina aconteceu** (o código foi passado, mas não houve confirmação de que está tudo aplicado e funcionando):
-   - Remover item do inventário (`DELETE /api/personagens/[id]/itens/[personagemItemId]` + botão "Remover" na ficha).
-   - PV/PE/Sanidade atuais iguais aos máximos na criação (`index.post.ts` usando `calcularRecursosMaximos`).
-   - **Origem como catálogo**: `GET /api/origens`, `origemId` em `index.post.ts` e `[id]/index.put.ts`, `<select>` em `nova.vue` e `editar.vue`, `include: { origem: true }` no `GET` da ficha e exibição com `personagem.origem?.nome`.
-   - Exibir carga, defesa e deslocamento na tela (`index.vue` da ficha).
-4. **Implementar Habilidades**: rota `POST /api/personagens/[id]/habilidades`, formulário (nome, descrição, tipo) e listagem na ficha; opcionalmente já incluir o poder da Origem escolhida.
-5. Conferir que `.env` está no `.gitignore` e **não** entra no commit.
+1. **Banco de desenvolvimento separado**: criar um segundo banco no mesmo cluster (ex.: `fichas_dev`), apontar a `DATABASE_URL` local para ele e rodar `db push` + `db seed`, para que testes não mexam nas fichas reais do grupo.
+2. **Implementar Habilidades**: rota `POST /api/personagens/[id]/habilidades`, formulário (nome, descrição, tipo) e listagem na ficha; opcionalmente já incluir o poder da Origem escolhida. Seguir os padrões de rota da seção 3.
+3. **Seed idempotente** (pede confirmação, mexe no schema): rituais e itens com `upsert` e `@@unique` (nome + elemento / nome + categoria), para o seed não duplicar.
+4. **Cascata no schema** (opcional, pede confirmação): `onDelete: Cascade` nas junções, no lugar da transação manual do `DELETE`.
+5. **Limpeza** (boa tarefa para o Codex): `dev.db` e `prisma/migrations/` (restos do SQLite), skills triplicadas em `.agents/`, `.claude/` e `.windsurf/`, exercícios de campanhas com dados fixos; instalar `typescript` + `vue-tsc` para o `nuxi typecheck`; trocar os `any` da store por tipos.
+6. Brecha conhecida: mudar treino e remover item não conferem se aquele registro pertence à ficha da URL. Fechar junto com a autenticação (Fase 3).
 
 ### Próximas fases planejadas
 
@@ -211,5 +236,7 @@ npx prisma db push           # sincronizar o schema com o MongoDB
 npx prisma db seed           # popular o catálogo (cuidado: duplica rituais/itens)
 npx prisma studio            # ver os dados no navegador
 pnpm run dev                 # servidor de desenvolvimento (localhost:3000)
+pnpm test                    # roda os testes uma vez
+pnpm test:watch              # roda os testes a cada arquivo salvo
 git status                   # sempre conferir antes de commitar (nada de .env)
 ```

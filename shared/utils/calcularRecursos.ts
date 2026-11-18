@@ -11,10 +11,17 @@ const TABELA_CLASSES = {
   OCULTISTA:    { pvBase: 12, pvPorNex: 2, peBase: 4, pePorNex: 4, sanBase: 20, sanPorNex: 5 },
 }
 
+// Quantos níveis o personagem ganhou além do inicial (NEX 5%).
+// O NEX sobe de 5 em 5 até 95% (18 níveis) e depois vai para 99%, que é um patamar próprio (19 níveis).
+export function calcularNiveisGanhos(nex: number) {
+  if (nex >= 99) return 19
+  return Math.max(0, Math.floor((nex - 5) / 5))
+}
+
 export function calcularRecursosMaximos(classe: Classe, nex: number, vigor: number, presenca: number) {
   const regras = TABELA_CLASSES[classe]
 
-  const niveis = Math.max(0, Math.floor((nex - 5) / 5))
+  const niveis = calcularNiveisGanhos(nex)
 
   const pvMaximo = (regras.pvBase + vigor) + niveis * (regras.pvPorNex + vigor)
   const peMaximo = (regras.peBase + presenca) + niveis * (regras.pePorNex + presenca)
